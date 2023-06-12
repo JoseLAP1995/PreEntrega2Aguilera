@@ -106,7 +106,7 @@ class Producto {
     this.precio = precio;
   }
 
-  checarDescuento(descuento, aplicaDescuento) {
+  checarDescuento(descuento, aplicaDescuento = false) {
     return aplicaDescuento ? this.precio * descuento : this.precio;
   }
 }
