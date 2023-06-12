@@ -7,95 +7,40 @@ function generarExpresionValidacion(opcion, numeroMinimo, numeroMaximo) {
   );
 }
 
-function escogerPelicula(catalogo) {
-  let peliculaEscogida;
-  let listadoPeliculas = "\n";
-
-  catalogo.map((pelicula, i) => {
+function listarCatalogo(catalogo) {
+  let listado = "\n";
+  catalogo.map((producto, i) => {
     if (i + 1 === catalogo.length) {
-      listadoPeliculas += `${pelicula.codigo}. ${pelicula.nombre}\n0. Salir`;
+      listado += `${producto.codigo}. ${producto.nombre}: $${producto.precio}\n0. Salir`;
     } else {
-      listadoPeliculas += `${pelicula.codigo}. ${pelicula.nombre}\n`;
+      listado += `${producto.codigo}. ${producto.nombre}: $${producto.precio}\n`;
     }
   });
+  return listado;
+}
+
+function escogerProducto(mensaje, catalogo) {
+  let productoEscogido;
 
   do {
-    peliculaEscogida = prompt(
-      `Bienvenido a Cines Unidos. Las entradas tienen un valor de $1500. Por favor coloque según el número la película que desee ver:${listadoPeliculas}`
-    );
+    productoEscogido = prompt(mensaje);
 
-    if (parseInt(peliculaEscogida) === 0) {
+    if (parseInt(productoEscogido) === 0) {
       return [];
     } else if (
-      generarExpresionValidacion(peliculaEscogida, 1, catalogo.length)
+      generarExpresionValidacion(productoEscogido, 1, catalogo.length)
     ) {
       alert(`Debes introducir un valor numérico entre 1 y ${catalogo.length}.`);
     }
-  } while (generarExpresionValidacion(peliculaEscogida, 1, catalogo.length));
+  } while (generarExpresionValidacion(productoEscogido, 1, catalogo.length));
 
   return catalogo.find(
-    (pelicula) => pelicula.codigo === parseInt(peliculaEscogida)
+    (producto) => producto.codigo === parseInt(productoEscogido)
   );
 }
 
-function desearBebida(bebidas) {
-  let quererBebida;
-  let listadoBebidas = "\n";
-
-  bebidas.map((bebida, i) => {
-    if (i + 1 === bebidas.length) {
-      listadoBebidas += `${bebida.codigo}. ${bebida.nombre}: $${bebida.precio}\n0. Salir`;
-    } else {
-      listadoBebidas += `${bebida.codigo}. ${bebida.nombre}: $${bebida.precio}\n`;
-    }
-  });
-
-  do {
-    quererBebida = prompt(
-      `¿Cuál de las siguientes bebidas quiere comprar?${listadoBebidas}`
-    );
-
-    if (parseInt(quererBebida) === 0) {
-      return [];
-    } else if (generarExpresionValidacion(quererBebida, 1, bebidas.length)) {
-      alert(`Debes introducir un valor numérico entre 1 y ${bebidas.length}.`);
-    }
-  } while (generarExpresionValidacion(quererBebida, 1, bebidas.length));
-
-  return bebidas.find((bebida) => bebida.codigo === parseInt(quererBebida));
-}
-
-function desearGolosina(golosinas) {
-  let quererGolosina;
-  let listadoGolosinas = "\n";
-
-  golosinas.map((golosina, i) => {
-    if (i + 1 === golosinas.length) {
-      listadoGolosinas += `${golosina.codigo}. ${golosina.nombre}: $${golosina.precio}\n0. Salir`;
-    } else {
-      listadoGolosinas += `${golosina.codigo}. ${golosina.nombre}: $${golosina.precio}\n`;
-    }
-  });
-
-  do {
-    quererGolosina = prompt(
-      `¿Desea añadir una golosina a su pedido?${listadoGolosinas}`
-    );
-
-    if (parseInt(quererGolosina) === 0) {
-      return [];
-    } else if (
-      generarExpresionValidacion(quererGolosina, 1, golosinas.length)
-    ) {
-      alert(
-        `Debes introducir un valor numérico entre 1 y ${golosinas.length}.`
-      );
-    }
-  } while (generarExpresionValidacion(quererGolosina, 1, golosinas.length));
-
-  return golosinas.find(
-    (golosina) => golosina.codigo === parseInt(quererGolosina)
-  );
+function mensajeCompra(nombreProducto, valorProducto, producto) {
+  return `${producto}: ${nombreProducto}. Valor: $${valorProducto}\n`;
 }
 
 function ingresarCodigoDescuento(codigoDescuento) {
@@ -123,32 +68,31 @@ function ingresarCodigoDescuento(codigoDescuento) {
 }
 
 function darTotal(pelicula, bebida, golosina, tieneCodigo) {
-  let descuento = 1;
   let valorTotal = 0;
   let stringCompra = "";
 
   if (tieneCodigo) {
-    descuento = 0.85;
+    stringCompra += `¡Tiene código de 15% de descuento!\n`;
   }
 
   if (pelicula.nombre !== undefined) {
-    stringCompra += `Película que va a ver: ${pelicula.nombre}. Valor: $${pelicula.precio}\n`;
-    valorTotal += pelicula.precio;
+    let precioPelicula = pelicula.checarDescuento(0.85, tieneCodigo);
+    stringCompra += mensajeCompra(pelicula.nombre, precioPelicula, "Película");
+    valorTotal += precioPelicula;
   }
+
   if (bebida.nombre !== undefined) {
-    stringCompra += `Bebida que va a comprar: ${bebida.nombre}. Valor: $${bebida.precio}\n`;
-    valorTotal += bebida.precio;
+    let precioBebida = bebida.checarDescuento(0.85, tieneCodigo);
+    stringCompra += mensajeCompra(bebida.nombre, precioBebida, "Bebida");
+    valorTotal += precioBebida;
   }
+
   if (golosina.nombre !== undefined) {
-    stringCompra += `Golosina que va a comprar: ${golosina.nombre}. Valor: $${golosina.precio}\n`;
-    valorTotal += golosina.precio;
+    let precioGolosina = golosina.checarDescuento(0.85, tieneCodigo);
+    stringCompra += mensajeCompra(golosina.nombre, precioGolosina, "Golosina");
+    valorTotal += precioGolosina;
   }
-  if (tieneCodigo) {
-    stringCompra += `¡Tiene código de 15% de descuento!\n`;
-  }
-  stringCompra += `Valor total de la compra: $${
-    valorTotal * descuento
-  }\n¡Muchas gracias por comprar en Cines Unidos!`;
+  stringCompra += `Valor total de la compra: $${valorTotal}\n¡Muchas gracias por comprar en Cines Unidos!`;
 
   alert(stringCompra);
 }
@@ -160,6 +104,10 @@ class Producto {
     this.codigo = codigo;
     this.nombre = nombre;
     this.precio = precio;
+  }
+
+  checarDescuento(descuento, aplicaDescuento) {
+    return aplicaDescuento ? this.precio * descuento : this.precio;
   }
 }
 
@@ -253,6 +201,12 @@ let tieneCodigo = false;
 let opcion;
 let seleccionInvalida;
 let permanecerEnMenu;
+let peliculasListadas = listarCatalogo(catalogoPeliculas);
+let golosinasListadas = listarCatalogo(golosinasDeCine);
+let bebidasListadas = listarCatalogo(bebidasDeCine);
+let mensajePelicula = `Bienvenido a Cines Unidos. Las entradas tienen un valor de $1500. Por favor coloque según el número la película que desee ver:${peliculasListadas}`;
+let mensajeBebidas = `¿Cuál de las siguientes bebidas quiere comprar?${bebidasListadas}`;
+let mensajeGolosinas = `¿Desea añadir una golosina a su pedido?${golosinasListadas}`;
 
 do {
   opcion = prompt(`Bienvenido a Cines Unidos. ¿Qué desea hacer?
@@ -269,11 +223,11 @@ do {
   if (seleccionInvalida) {
     alert("Debes introducir un valor numérico entre 1 y 5.");
   } else if (parseInt(opcion) === 1) {
-    peliculaAVer = escogerPelicula(catalogoPeliculas);
+    peliculaAVer = escogerProducto(mensajePelicula, catalogoPeliculas);
   } else if (parseInt(opcion) === 2) {
-    bebida = desearBebida(bebidasDeCine);
+    bebida = escogerProducto(mensajeBebidas, bebidasDeCine);
   } else if (parseInt(opcion) === 3) {
-    golosina = desearGolosina(golosinasDeCine);
+    golosina = escogerProducto(mensajeGolosinas, golosinasDeCine);
   } else if (parseInt(opcion) === 4) {
     tieneCodigo = ingresarCodigoDescuento(codigoDescuento);
   } else if (parseInt(opcion) === 5) {
